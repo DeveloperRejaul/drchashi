@@ -32,6 +32,63 @@ i18n.use(HttpBackend)
 
 export default i18n;
 ```
+### step:2 i18 config get data form api
+```js
+/* eslint-disable import/no-named-as-default-member */
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import HttpBackend, { HttpBackendOptions } from 'i18next-http-backend';
+
+let len = 'bn';
+i18n.use(HttpBackend)
+  .use(initReactI18next)
+  .init<HttpBackendOptions>({
+    fallbackLng: 'bn',
+    backend: {
+      loadPath: 'https://backend.drchashi.com/api/v1/configuration/configuration-data',
+      request: async (options, url, payload, callback) => {
+        try {
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              language:len,
+            },
+          });
+
+          const data = await response.json();
+
+          callback(null, {
+            status: response.status,
+            data,
+          });
+        } catch (error) {
+          callback(error, null);
+        }
+      },
+    },
+
+    interpolation: {
+      escapeValue: false,
+    },
+
+    react: {
+      useSuspense: false,
+    },
+
+    ns: ['common'],
+    defaultNS: 'common',
+  });
+
+
+export const changeLanguage = async (lng: 'en' | 'bn') => {
+  len= lng;
+  await i18n.reloadResources(lng)
+  await i18n.changeLanguage(lng);
+};
+export default i18n;
+
+```
 
 ### step 03 : Setup provide
 ```jsx 
